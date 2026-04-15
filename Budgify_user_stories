@@ -585,7 +585,7 @@
 4. If API fails, show:
    "Unable to update exchange rate, last saved value will be used."
 5. If no internet connection:
-   "Currency conversion cannot be performed حاليا."
+   "Currency conversion cannot be performed at the moment."
 
 
 
