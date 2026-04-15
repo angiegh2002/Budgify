@@ -261,8 +261,331 @@
 
 
 
+# **Budgify User Story**
 
+## **Registration & Login**
 
+### **User Stories**
+
+**1.** As a user, I want to register using a username, email, and password so that I can create a new account.
+
+**Acceptance Criteria:**
+
+1. The form includes fields: (Name, Username, Email, Password, Confirm Password), all required.
+2. The user can create an account by entering valid data and clicking the "Register" button.
+3. An error message appears for each field if input is missing or invalid.
+4. A confirmation popup is shown when the account is successfully created.
+
+---
+
+**2.** As a user, I want to log in using my email (or username) and password to access my account.
+
+**Acceptance Criteria:**
+
+1. If login fails (invalid credentials), a general error message appears:
+   "Email or password is incorrect."
+2. The user is redirected to the home screen upon successful login.
+
+---
+
+**3.** As a user, I want the app to remember my login when I reopen it so that I don’t have to enter my credentials every time.
+
+**Acceptance Criteria:**
+
+1. User details are saved in local storage after registration and used for authentication.
+2. When the app is reopened, the home screen is displayed directly without requiring login.
+
+---
+
+## **Home Screen (Dashboard) & Transactions**
+
+### **User Stories**
+
+**1.** As a user, I want to see a welcome message so that I feel welcomed.
+
+**Acceptance Criteria:**
+
+1. A welcome message “Hello, [Username]” is displayed at the top of the home screen.
+2. The name updates automatically if modified.
+
+---
+
+**2.** As a user, I want to see a summary of my financial status on the home screen so that I can quickly check my balance, expenses, and budget.
+
+**Acceptance Criteria:**
+
+1. Main cards display (Available Balance, Expenses, Income, Monthly Budget).
+2. Values are clearly shown in separate cards.
+3. A progress bar shows the budget usage percentage.
+4. All values update automatically when a transaction is added, edited, or deleted.
+
+---
+
+**3.** As a user, I want to be able to change my budget so I can manage it according to my financial situation.
+
+**Acceptance Criteria:**
+
+1. An edit button is available under the budget card.
+2. Clicking it opens a popup to enter a new budget.
+3. The value must be numeric and greater than 0.
+4. Clicking "Save" updates the budget, progress bar, and percentage.
+5. The budget is saved in local storage.
+
+---
+
+**4.** As a user, I want intuitive navigation icons so I can easily navigate within the app.
+
+**Acceptance Criteria:**
+
+1. A settings icon is displayed in the top-left corner.
+2. A bottom navigation bar allows switching between the home screen and transaction list.
+3. A button is available to add a new transaction.
+
+---
+
+**5.** As a user, I want to see all my financial transactions in an organized list so that I can review them easily.
+
+**Acceptance Criteria:**
+
+1. Transactions are listed from newest to oldest.
+2. Each transaction shows (Category, Date, Amount).
+3. Expenses are highlighted in red and income in green.
+4. Clicking a transaction opens the transaction details screen.
+
+---
+
+**6.** As a user, I want to filter transactions by (day, week, month) so I can analyze my spending.
+
+**Acceptance Criteria:**
+
+1. A filter bar is available with (Day, Week, Month).
+2. The list updates immediately when a filter is selected.
+
+---
+
+## **Transaction Details & Editing**
+
+### **User Stories**
+
+**1.** As a user, I want to view transaction details so I can review or correct them later.
+
+**Acceptance Criteria:**
+
+1. Display transaction data (Type, Amount, Category, Date, Notes).
+2. Data is shown exactly as previously entered.
+
+---
+
+**2.** As a user, I want to edit a transaction so I can correct errors or update information.
+
+**Acceptance Criteria:**
+
+1. An "Edit" button is displayed.
+2. Clicking it navigates to an edit screen with pre-filled data.
+3. Updates are saved in local storage.
+
+---
+
+**3.** As a user, I want to delete a transaction so I can remove incorrect entries.
+
+**Acceptance Criteria:**
+
+1. A "Delete" button is displayed.
+2. A confirmation message appears before deletion.
+3. Upon confirmation, the transaction is deleted and values are updated on the home screen.
+
+---
+
+**4.** As a user, I want to easily go back to the previous screen so I can navigate the app smoothly.
+
+**Acceptance Criteria:**
+
+1. A back button is displayed in the top-left corner.
+
+---
+
+## **Add New Transaction**
+
+### **User Stories**
+
+**1.** As a user, I want to add a financial transaction (expense or income) through a quick form so I can record transactions instantly.
+
+**Acceptance Criteria:**
+
+1. The form includes (Type, Amount, Category, Date, Optional Notes).
+2. The "Amount" field is required and must not accept negative values.
+3. On successful save, a confirmation message appears and the dashboard and transaction list are updated.
+
+---
+
+## **Profile Screen**
+
+### **User Stories**
+
+**1.** As a user, I want to view my personal information so I can review it.
+
+**Acceptance Criteria:**
+
+1. Display user info (Name, Username, Email).
+2. Data is retrieved from local storage.
+3. Data is clearly displayed in a form or card.
+
+---
+
+**2.** As a user, I want to edit my personal information so I can update my details.
+
+**Acceptance Criteria:**
+
+1. User can edit (Name, Username, Email).
+2. Data is validated upon clicking "Save Changes".
+3. Valid changes are saved in local storage.
+4. Updates reflect across the app (e.g., welcome message).
+
+---
+
+## **Settings Menu**
+
+### **User Stories**
+
+**1.** As a user, I want easy access to the settings menu so I can manage my account.
+
+**Acceptance Criteria:**
+
+1. A menu icon is displayed in the top-left corner.
+
+---
+
+**2.** As a user, I want categorized sections in settings so I can quickly find what I need.
+
+**Acceptance Criteria:**
+
+1. Settings are grouped into categories such as (Profile, Settings, Notifications, Logout).
+
+---
+
+## **Logout**
+
+### **User Stories**
+
+**1.** As a user, I want to log out of the app to protect my data.
+
+**Acceptance Criteria:**
+
+1. A visible "Logout" button is available in settings.
+2. Session data is cleared from local storage upon logout.
+3. The user is redirected to the login screen.
+
+---
+
+## **Settings Screen**
+
+### **User Stories**
+
+**1.** As a user, I want to select a currency so it matches my financial usage.
+
+**Acceptance Criteria:**
+
+1. Multiple options are available, with only one selectable.
+2. Selected currency is saved.
+3. All amounts update accordingly.
+
+---
+
+**2.** As a user, I want to enable dark mode so I can use the app comfortably at night.
+
+**Acceptance Criteria:**
+
+1. A toggle switch is available.
+2. Activating it switches the app to dark theme.
+3. Preference is saved in local storage.
+
+---
+
+**3.** As a user, I want to manage categories so I can organize my transactions.
+
+**Acceptance Criteria:**
+
+1. User can (Add, Edit, Delete) categories.
+2. Adding requires category name and type.
+3. Deletion requires confirmation.
+
+---
+
+## **Notifications Screen**
+
+### **User Stories**
+
+**1.** As a user, I want to receive reminders to log expenses or alerts when approaching my budget limit so I can manage my finances better.
+
+**Acceptance Criteria:**
+
+1. User can enable/disable notifications.
+2. User can enable daily reminders.
+3. Daily notification is sent when enabled.
+4. User can enable budget limit alerts.
+5. Notification is sent when nearing or exceeding the budget.
+
+---
+
+## **Persistent Data Integration**
+
+### **User Stories**
+
+**1.** As a user, I want the app to remember my login state so I don’t need to log in every time.
+
+**Acceptance Criteria:**
+
+1. Login state is stored in local storage.
+2. App opens directly to home screen if logged in.
+3. State is cleared on logout.
+
+---
+
+**2.** As a user, I want my transactions saved so I can access them later.
+
+**Acceptance Criteria:**
+
+1. All transactions are stored in local storage.
+2. Data persists after closing the app.
+3. Transactions are retrieved and displayed on app launch.
+
+---
+
+**3.** As a user, I want my budget saved so I don’t need to re-enter it.
+
+**Acceptance Criteria:**
+
+1. Budget is stored in local storage.
+2. It loads automatically on app start.
+3. It updates when modified.
+
+---
+
+**4.** As a user, I want my settings (currency, dark mode, categories, notifications) saved so the app remembers them.
+
+**Acceptance Criteria:**
+
+1. Settings are stored.
+2. Applied automatically on app launch.
+3. Updated when changed.
+
+---
+
+## **External API Integration**
+
+### **User Stories**
+
+**1.** As a user, I want to change the app currency so that all financial values are automatically converted using real exchange rates.
+
+**Acceptance Criteria:**
+
+1. Selecting a new currency sends a request to an API to fetch exchange rates.
+2. (Balance, Expenses, Income, Transactions) are converted.
+3. Values update immediately across the app.
+4. If API fails, show:
+   "Unable to update exchange rate, last saved value will be used."
+5. If no internet connection:
+   "Currency conversion cannot be performed حاليا."
 
 
 
