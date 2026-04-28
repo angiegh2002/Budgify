@@ -107,12 +107,16 @@ class DatabaseHelper {
   static Future<List<Map<String, dynamic>>> getTransactions() async {
     final db = await database;
 
-    return await db.query(
-      "transactions",
-      orderBy: "id DESC",
-    );
+    return await db.rawQuery('''
+    SELECT 
+      transactions.*,
+      categories.name AS category_name
+    FROM transactions
+    LEFT JOIN categories
+    ON transactions.category_id = categories.id
+    ORDER BY transactions.id DESC
+  ''');
   }
-
   static Future<int> deleteTransaction(int id) async {
     final db = await database;
 
