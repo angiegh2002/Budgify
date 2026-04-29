@@ -24,7 +24,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController=TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController rePasswordController = TextEditingController();
-
+  @override
+  void dispose() {
+    nameController.dispose();
+    userNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 30),defaultTextFormField(
                               controller: nameController,
                               textInputType: TextInputType.name,
-                              labelText: "name",
+                              labelText: "Name",
                               prefixIcon: Icons.person_outlined,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -70,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 30),defaultTextFormField(
                               controller: userNameController,
                               textInputType: TextInputType.name,
-                              labelText: "user name",
+                              labelText: "User name",
                               prefixIcon: Icons.person,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -82,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                               controller: emailController,
                               textInputType: TextInputType.emailAddress,
-                              labelText: "email",
+                              labelText: "Email",
                               prefixIcon: Icons.email_outlined,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -100,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                             controller: passwordController,
                             textInputType: TextInputType.visiblePassword,
-                            labelText: "password",
+                            labelText: "Password",
                             prefixIcon: Icons.lock_outline,
                             isPasswordHidden: isPasswordHidden,
                             suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -123,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                             controller: rePasswordController,
                             textInputType: TextInputType.visiblePassword,
-                            labelText: "re_password",
+                            labelText: "Re_Password",
                             prefixIcon: Icons.lock_outline,
                             isPasswordHidden: isPasswordHidden,
                             suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,

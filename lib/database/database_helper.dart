@@ -85,6 +85,9 @@ class DatabaseHelper {
 
 
 
+
+
+
   static Future<int> insertTransaction({
     required double amount,
     required String currency,
@@ -122,6 +125,32 @@ class DatabaseHelper {
 
     return await db.delete(
       "transactions",
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
+
+
+
+  static Future<void> updateTransaction({
+    required int id,
+    required double amount,
+    required String type,
+    required int categoryId,
+    required String notes,
+    required String currency,
+  }) async {
+    final db = await database;
+
+    await db.update(
+      "transactions",
+      {
+        "amount": amount,
+        "type": type,
+        "category_id": categoryId,
+        "notes": notes,
+        "currency": currency,
+      },
       where: "id = ?",
       whereArgs: [id],
     );

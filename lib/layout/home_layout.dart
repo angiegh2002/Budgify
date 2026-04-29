@@ -1,4 +1,5 @@
 import 'package:budgify/screen/home_screen.dart';
+import 'package:budgify/screen/profile_screen.dart';
 import 'package:budgify/screen/transactions_screen.dart';
 import 'package:budgify/server/cache_helper.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +15,20 @@ class HomeLayout extends StatefulWidget {
 class _HomeLayoutState extends State<HomeLayout> {
 
   int currentIndex = 0;
-  String? name=CacheHelper.prefs.getString("name");
-  List <Widget> screen= [
+  String? get name => CacheHelper.prefs.getString("name");
+
+  List<Widget> screen = [
     HomeScreen(),
     TransactionsScreen()
   ];
+
+  PageController pageController = PageController();
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +38,7 @@ class _HomeLayoutState extends State<HomeLayout> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          "Hello, $name\!",
+          "Hello, $name!",
           style: TextStyle(
             color: white,
             fontWeight: FontWeight.bold,
@@ -42,12 +52,21 @@ class _HomeLayoutState extends State<HomeLayout> {
             },
             icon: Icon(
               Icons.menu,
-              size: 40,
+              size: 30,
             ),
           ),
         ),
       ),
-      body: screen[currentIndex],
+
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        children: screen,
+      ),
 
       drawer: Drawer(
         child: ListView(
@@ -74,8 +93,14 @@ class _HomeLayoutState extends State<HomeLayout> {
             ListTile(
               leading: Icon(Icons.person_outlined),
               title: Text("Profile"),
-              onTap: () {
-                Navigator.pop(context);
+              onTap: ()async{
+                final result =
+                await Navigator.push(context, MaterialPageRoute(builder:  (BuildContext context)=> ProfileScreen()));
+
+                if (result == true) {
+                  setState(() {});
+                }
+
               },
             ),
             ListTile(
@@ -110,8 +135,6 @@ class _HomeLayoutState extends State<HomeLayout> {
                 );
               },
             ),
-
-
           ],
         ),
       ),
@@ -138,7 +161,9 @@ class _HomeLayoutState extends State<HomeLayout> {
           size: 40,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      floatingActionButtonLocation:
+      FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
         color: green,
@@ -167,6 +192,12 @@ class _HomeLayoutState extends State<HomeLayout> {
       onTap: () {
         setState(() {
           currentIndex = index;
+
+          pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
         });
       },
       child: Padding(
@@ -185,7 +216,9 @@ class _HomeLayoutState extends State<HomeLayout> {
               style: TextStyle(
                 color: isSelected ? white : gray2,
                 fontSize: 13,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected
+                    ? FontWeight.bold
+                    : FontWeight.normal,
               ),
             ),
           ],

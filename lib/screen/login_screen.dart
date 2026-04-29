@@ -19,7 +19,12 @@ final _formKey = GlobalKey<FormState>();
 bool isPasswordHidden = true;
 final TextEditingController emailController=TextEditingController();
 final TextEditingController passwordController = TextEditingController();
-
+@override
+void dispose() {
+  emailController.dispose();
+  passwordController.dispose();
+  super.dispose();
+}
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -58,7 +63,7 @@ Widget build(BuildContext context) {
                         defaultTextFormField(
                             controller: emailController,
                             textInputType: TextInputType.emailAddress,
-                            labelText: "email / username",
+                            labelText: "Email / Username",
                             prefixIcon: Icons.email_outlined,
                             validator: (value){
                               if (value==null || value.isEmpty){
@@ -70,7 +75,7 @@ Widget build(BuildContext context) {
                         defaultTextFormField(
                           controller: passwordController,
                           textInputType: TextInputType.visiblePassword,
-                          labelText: "password",
+                          labelText: "Password",
                           prefixIcon: Icons.lock_outline,
                           isPasswordHidden: isPasswordHidden,
                           suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,
