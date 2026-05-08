@@ -19,18 +19,27 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   bool isPasswordHidden = true;
+  bool isDarkmode = CacheHelper.prefs.getBool("enableDarkMode") ?? false;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController emailController=TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController rePasswordController = TextEditingController();
-
+  @override
+  void dispose() {
+    nameController.dispose();
+    userNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: gray1,
-        leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_outlined,color: gray4,)),
+        backgroundColor:  isDarkmode ? grayDarkM : gray1,
+        leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_outlined,color: isDarkmode ? white : gray4,)),
 
       ),
       body: SafeArea(
@@ -45,8 +54,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Form(
                       key: _formKey,
@@ -59,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 30),defaultTextFormField(
                               controller: nameController,
                               textInputType: TextInputType.name,
-                              labelText: "name",
+                              labelText: "Name",
                               prefixIcon: Icons.person_outlined,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -70,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 30),defaultTextFormField(
                               controller: userNameController,
                               textInputType: TextInputType.name,
-                              labelText: "user name",
+                              labelText: "User name",
                               prefixIcon: Icons.person,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -82,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                               controller: emailController,
                               textInputType: TextInputType.emailAddress,
-                              labelText: "email",
+                              labelText: "Email",
                               prefixIcon: Icons.email_outlined,
                               validator: (value){
                                 if (value==null || value.isEmpty){
@@ -100,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                             controller: passwordController,
                             textInputType: TextInputType.visiblePassword,
-                            labelText: "password",
+                            labelText: "Password",
                             prefixIcon: Icons.lock_outline,
                             isPasswordHidden: isPasswordHidden,
                             suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -123,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultTextFormField(
                             controller: rePasswordController,
                             textInputType: TextInputType.visiblePassword,
-                            labelText: "re_password",
+                            labelText: "Re_Password",
                             prefixIcon: Icons.lock_outline,
                             isPasswordHidden: isPasswordHidden,
                             suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,

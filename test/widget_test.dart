@@ -34,7 +34,7 @@ void main() {
           (WidgetTester tester) async {
 
         await tester.pumpWidget(
-          BudgifyApp(isLogin: false),
+          BudgifyApp(isLogin: false,isDarkmode: false,),
         );
 
         expect(find.byType(MaterialApp),

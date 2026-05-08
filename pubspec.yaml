@@ -37,6 +37,13 @@ dependencies:
   shared_preferences: ^2.5.5
   fluttertoast: ^9.0.0
   sqflite: ^2.4.2+1
+  easy_local_notify: ^0.0.1
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
+  flutter_iconpicker: ^4.0.3
+  flutter_colorpicker: ^1.1.0
+  permission_handler: ^12.0.1
+  flutter_timezone: ^3.0.1
 
 flutter_launcher_icons:
   android: true

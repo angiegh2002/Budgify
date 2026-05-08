@@ -1,8 +1,12 @@
 import 'package:budgify/component.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../const.dart';
 import '../database/database_helper.dart';
 import '../server/cache_helper.dart';
+import '../server/notification_server.dart';
+
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,28 +24,84 @@ class _HomeScreenState extends State<HomeScreen> {
   double percentage = 0;
   String currency="";
 
+  bool isDarkmode = CacheHelper.prefs.getBool("enableDarkMode") ?? false;
+
+
   @override
   void initState() {
     super.initState();
+
     loadData();
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await checkAllPermissions();
+    //   await NotificationService.testScheduledIn30Seconds();
+    //   await testNotification();
+    //
+    // });
+  }
+
+  Future<void> checkAllPermissions() async {
+    var notificationStatus = await Permission.notification.status;
+    print(" Notification: ${notificationStatus.name}");
+
+    var scheduleExactStatus = await Permission.scheduleExactAlarm.status;
+    print(" Schedule Exact Alarm: ${scheduleExactStatus.name}");
+
+    if (!scheduleExactStatus.isGranted) {
+      print("Requesting exact alarm permission...");
+      await Permission.scheduleExactAlarm.request();
+    }
+  }
+  Future<void> testNotification() async {
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        'test_channel',
+        'Test Notifications',
+        channelDescription: 'Testing',
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
+
+      await NotificationService.plugin.show(
+        999,
+        "TEST 🔧",
+        "System is working!",
+        const NotificationDetails(android: androidDetails),
+      );
+      print("Test notification sent");
+    } catch (e) {
+      print(" Test notification failed: $e");
+    }
   }
 
   Future<void> loadData() async {
-    income = await DatabaseHelper.getIncome();
-    expenses = await DatabaseHelper.getExpenses();
-    balance = await DatabaseHelper.getBalance();
-    monthlyBudget = CacheHelper.prefs.getDouble("monthlyBudget") ?? 0;
-    currency = CacheHelper.prefs.getString("currency") ?? "USD";
+    try {
+      income = await DatabaseHelper.getIncome();
+      expenses = await DatabaseHelper.getExpenses();
+      balance = await DatabaseHelper.getBalance();
+      monthlyBudget = CacheHelper.prefs.getDouble("monthlyBudget") ?? 0;
+      currency = CacheHelper.prefs.getString("currency") ?? "USD";
 
-    if (monthlyBudget > 0) {
-      percentage = expenses / monthlyBudget;
+      bool budgetAlertEnabled = CacheHelper.prefs.getBool("budgetAlert") ?? false;
 
-      if (percentage > 1) {
-        percentage = 1;
+      if (monthlyBudget > 0) {
+        percentage = expenses / monthlyBudget;
+        if (percentage > 1) percentage = 1;
+
+        if (percentage >= 0.8 && budgetAlertEnabled) {
+          await NotificationService.budgetAlert(percentage, true);
+        }
       }
-    }
 
-    setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      print("Error in loadData: $e");
+      if (mounted) setState(() {});
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -56,12 +116,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Main Balance Card
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: const [
                       BoxShadow(
@@ -107,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 20),
 
-                // Income & Expense Cards
                 Row(
                   children: [
                     Expanded(
@@ -134,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: const [
                       BoxShadow(
@@ -165,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               showDialog(
                                   context: context,
                                   builder: (context){
-                                    return AlertDialog(
+                                    return AlertDialog(backgroundColor: Theme.of(context).cardColor,
                                       title: const Text("Edit Monthly Budget"),
 
                                       content:defaultTextFormField(
@@ -181,14 +239,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: const Text("Cancel"),
+                                          child: Text("Cancel",style: TextStyle(color:isDarkmode ? gray3 : gray4),),
                                         ),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: green,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          onPressed: () async {
+                                        TextButton(
+                                          onPressed:  () async {
                                             double newBudget =
                                                 double.tryParse(
                                                     budgetEditController.text) ??
@@ -202,8 +256,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                             Navigator.pop(context);
                                           },
-                                          child: const Text("Save"),
+                                          child: const Text("Save",style: TextStyle(color: green),),
                                         ),
+                                        // ElevatedButton(
+                                        //   style: ElevatedButton.styleFrom(
+                                        //     backgroundColor: green,
+                                        //     foregroundColor: Colors.white,
+                                        //   ),
+                                        //   onPressed: () async {
+                                        //     double newBudget =
+                                        //         double.tryParse(
+                                        //             budgetEditController.text) ??
+                                        //             0;
+                                        //
+                                        //     await CacheHelper.prefs.setDouble(
+                                        //         "monthlyBudget",
+                                        //         newBudget);
+                                        //
+                                        //     await loadData();
+                                        //
+                                        //     Navigator.pop(context);
+                                        //   },
+                                        //   child: const Text("Save"),
+                                        // ),
                                       ],
                                     );
                                   });
@@ -266,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(

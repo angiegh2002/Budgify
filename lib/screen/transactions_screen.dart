@@ -1,3 +1,4 @@
+import 'package:budgify/screen/transaction_detail_screen.dart';
 import 'package:flutter/material.dart';
 import '../const.dart';
 import '../database/database_helper.dart';
@@ -16,6 +17,8 @@ class _TransactionsScreenState
   List<Map<String, dynamic>> transactions = [];
   String selectedFilter = "today";
 
+  Map<String, List<Map<String, dynamic>>> grouped = {};
+
   @override
   void initState() {
     super.initState();
@@ -23,49 +26,88 @@ class _TransactionsScreenState
   }
 
   Future<void> loadTransactions() async {
-    List<Map<String, dynamic>> allTransactions =
+    List<Map<String, dynamic>> all =
     await DatabaseHelper.getTransactions();
 
     DateTime now = DateTime.now();
 
     List<Map<String, dynamic>> filtered =
-    allTransactions.where((transaction) {
-      DateTime transactionDate =
-      DateTime.parse(transaction["date"]);
+    all.where((t) {
+      DateTime d = DateTime.parse(t["date"]);
 
       if (selectedFilter == "today") {
-        return transactionDate.year == now.year &&
-            transactionDate.month == now.month &&
-            transactionDate.day == now.day;
+        return d.year == now.year &&
+            d.month == now.month &&
+            d.day == now.day;
       }
 
       if (selectedFilter == "week") {
-        DateTime weekAgo =
-        now.subtract(const Duration(days: 7));
-        return transactionDate.isAfter(weekAgo);
+        return d.isAfter(
+            now.subtract(const Duration(days: 7)));
       }
 
       if (selectedFilter == "month") {
-        return transactionDate.year == now.year &&
-            transactionDate.month == now.month;
+        return d.year == now.year &&
+            d.month == now.month;
+      }
+
+      if (selectedFilter == "year") {
+        return d.year == now.year;
       }
 
       return true;
     }).toList();
 
-    setState(() {
+    if (selectedFilter == "year") {
+      groupByMonth(filtered);
+    } else {
       transactions = filtered;
-    });
+    }
+
+    setState(() {});
   }
 
-  Color getColor(String type) {
+  void groupByMonth(List<Map<String, dynamic>> data) {
+    Map<String, List<Map<String, dynamic>>> temp = {};
+
+    for (var t in data) {
+      DateTime d = DateTime.parse(t["date"]);
+
+      String key =
+          "${d.year}-${d.month.toString().padLeft(2, '0')}";
+
+      temp.putIfAbsent(key, () => []);
+      temp[key]!.add(t);
+    }
+
+    var sortedKeys = temp.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    grouped = {
+      for (var k in sortedKeys) k: temp[k]!
+    };
+  }
+
+  IconData categoryIcon(int? codePoint) {
+    return IconData(
+      codePoint ?? Icons.category.codePoint,
+      fontFamily: 'MaterialIcons',
+    );
+  }
+
+  Color categoryColor(int? colorValue) {
+    return Color(colorValue ?? 0xFF9E9E9E);
+  }
+  Color amountColor(String type) {
     return type == "income" ? green : orange;
   }
-
-  IconData getIcon(String type) {
-    return type == "income"
-        ? Icons.arrow_upward
-        : Icons.arrow_downward;
+  String monthName(int m) {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr",
+      "May", "Jun", "Jul", "Aug",
+      "Sep", "Oct", "Nov", "Dec"
+    ];
+    return months[m - 1];
   }
 
   @override
@@ -73,89 +115,200 @@ class _TransactionsScreenState
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-            onRefresh: () async {
-              await loadTransactions();
+          onRefresh: loadTransactions,
+          child: Column(
+            children: [
+
+              const SizedBox(height: 20),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: gray3,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      buildSegment("Today", "today"),
+                      buildSegment("Week", "week"),
+                      buildSegment("Month", "month"),
+                      buildSegment("Year", "year"),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: selectedFilter == "year"
+                    ? buildGroupedList()
+                    : buildNormalList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildNormalList() {
+    return transactions.isEmpty
+        ? const Center(child: Text("No transactions"))
+        : ListView.builder(
+      itemCount: transactions.length,
+      itemBuilder: (context, index) {
+        var item = transactions[index];
+
+        return Card(
+          margin: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 8),
+          child: ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TransactionDetailsScreen(
+                    transaction: item,
+                  ),
+                ),
+              );
             },
-        child: Column(
+
+            leading: Container(
+              width: 45,
+              height: 45,
+              decoration: BoxDecoration(
+                color: categoryColor(item["category_color"])
+                    .withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                categoryIcon(item["category_icon"]),
+                color: categoryColor(item["category_color"]),
+              ),
+            ),
+
+            title: Text(
+              item["category_name"] ?? "Category",
+            ),
+
+            subtitle: Text(
+              item["date"].toString().substring(0, 10),
+            ),
+
+            trailing: Text(
+              "${item["amount"]} ${item["currency"]}",
+              style: TextStyle(
+                color: amountColor(item["type"]),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildGroupedList() {
+    return grouped.isEmpty
+        ? const Center(child: Text("No transactions"))
+        : ListView(
+      children: grouped.keys.map((key) {
+        List items = grouped[key]!;
+
+        DateTime d =
+        DateTime.parse(items.first["date"]);
+
+        double total = items.fold(0, (sum, e) {
+          if (e["type"] == "income") {
+            return sum + (e["amount"] ?? 0);
+          } else {
+            return sum - (e["amount"] ?? 0);
+          }
+        });
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            const SizedBox(height: 20),
-
-            // 🔥 Segmented Filter
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: gray3,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    buildSegment("Today", "today"),
-                    buildSegment("Week", "week"),
-                    buildSegment("Month", "month"),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Expanded(
-              child: transactions.isEmpty
-                  ? const Center(
-                child: Text("No transactions found"),
-              )
-                  : ListView.builder(
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  var item = transactions[index];
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      leading: Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: getColor(item["type"]).withOpacity(0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          getIcon(item["type"]),
-                          color: getColor(item["type"]),
-                        ),
-                      ),
-
-                      // 🔥 اسم الفئة بدل notes
-                      title: Text(
-                        item["category_name"] ??
-                            "Unknown Category",
-                      ),
-
-                      subtitle: Text(
-                        item["date"]
-                            .toString()
-                            .substring(0, 10),
-                      ),
-
-                      trailing: Text(
-                        "${item["amount"]} ${item["currency"]}",
-                        style: TextStyle(
-                          color:
-                          getColor(item["type"]),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+              padding: const EdgeInsets.fromLTRB(
+                  16, 20, 16, 10),
+              child: Row(
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${monthName(d.month)} ${d.year}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
+                  ),
+                  Text(
+                    "Total: $total",
+                    style: TextStyle(
+                      color: green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            ...items.map((item) {
+              return Card(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 6),
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TransactionDetailsScreen(
+                          transaction: item,
+                        ),
+                      ),
+                    );
+                  },
+
+                  leading: Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: categoryColor(item["category_color"])
+                          .withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      categoryIcon(item["category_icon"]),
+                      color: categoryColor(item["category_color"]),
+                    ),
+                  ),
+
+                  title: Text(
+                    item["category_name"] ?? "Category",
+                  ),
+
+                  subtitle: Text(
+                    item["date"].toString().substring(0, 10),
+                  ),
+
+                  trailing: Text(
+                    "${item["amount"]} ${item["currency"]}",
+                    style: TextStyle(
+                      color: amountColor(item["type"]),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ],
-        ),),
-      ),
+        );
+      }).toList(),
     );
   }
 
@@ -180,7 +333,7 @@ class _TransactionsScreenState
             child: Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected ? white : black,
                 fontWeight: FontWeight.bold,
               ),
             ),

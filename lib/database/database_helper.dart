@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -17,46 +18,59 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
 
-
+        await db.execute('''
+        CREATE TABLE categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          type TEXT NOT NULL,
+          color INTEGER NOT NULL,
+          icon INTEGER NOT NULL
+        )
+      ''');
 
         await db.execute('''
-          CREATE TABLE categories (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            type TEXT NOT NULL
-          )
-        ''');
+        CREATE TABLE transactions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          amount REAL NOT NULL,
+          currency TEXT NOT NULL,
+          type TEXT NOT NULL,
+          category_id INTEGER,
+          notes TEXT,
+          date TEXT NOT NULL,
+          FOREIGN KEY (category_id) REFERENCES categories(id)
+        )
+      ''');
+      },
 
-        await db.execute('''
-          CREATE TABLE transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            amount REAL NOT NULL,
-            currency TEXT NOT NULL,
-            type TEXT NOT NULL,
-            category_id INTEGER,
-            notes TEXT,
-            date TEXT NOT NULL,
-            FOREIGN KEY (category_id) REFERENCES categories(id)
-          )
-        ''');
+      onUpgrade: (db, oldVersion, newVersion) async {
+
+        if (oldVersion < 2) {
+          await db.execute("ALTER TABLE categories ADD COLUMN color INTEGER DEFAULT 0xFF000000");
+          await db.execute("ALTER TABLE categories ADD COLUMN icon INTEGER DEFAULT 0");
+        }
+
       },
     );
   }
 
-
-
-  static Future<int> insertCategory(String name, String type) async {
+  static Future<int> insertCategory(
+      String name,
+      String type,
+      int color,
+      int icon,
+      ) async {
     final db = await database;
 
     return await db.insert("categories", {
       "name": name,
       "type": type,
+      "color": color,
+      "icon": icon,
     });
   }
-
   static Future<List<Map<String, dynamic>>> getCategories() async {
     final db = await database;
     return await db.query("categories");
@@ -76,6 +90,16 @@ class DatabaseHelper {
   static Future<int> deleteCategory(int id) async {
     final db = await database;
 
+    final result = await db.query(
+      "transactions",
+      where: "category_id = ?",
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      throw Exception("Cannot delete category in use");
+    }
+
     return await db.delete(
       "categories",
       where: "id = ?",
@@ -83,6 +107,25 @@ class DatabaseHelper {
     );
   }
 
+  static Future<int> updateCategory(
+      int id,
+      String newName,
+      int color,
+      int icon,
+      ) async {
+    final db = await database;
+
+    return await db.update(
+      "categories",
+      {
+        "name": newName,
+        "color": color,
+        "icon": icon,
+      },
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
 
 
   static Future<int> insertTransaction({
@@ -103,14 +146,15 @@ class DatabaseHelper {
       "date": DateTime.now().toString(),
     });
   }
-
   static Future<List<Map<String, dynamic>>> getTransactions() async {
     final db = await database;
 
     return await db.rawQuery('''
     SELECT 
       transactions.*,
-      categories.name AS category_name
+      categories.name AS category_name,
+      categories.icon AS category_icon,
+      categories.color AS category_color
     FROM transactions
     LEFT JOIN categories
     ON transactions.category_id = categories.id
@@ -129,21 +173,62 @@ class DatabaseHelper {
 
 
 
+  static Future<void> updateTransaction({
+    required int id,
+    required double amount,
+    required String type,
+    required int categoryId,
+    required String notes,
+    required String currency,
+  }) async {
+    final db = await database;
+
+    await db.update(
+      "transactions",
+      {
+        "amount": amount,
+        "type": type,
+        "category_id": categoryId,
+        "notes": notes,
+        "currency": currency,
+      },
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
   static Future<double> getIncome() async {
     final db = await database;
 
-    final result = await db.rawQuery(
-      "SELECT SUM(amount) as total FROM transactions WHERE type='income'",
-    );
+    final now = DateTime.now();
+
+    final result = await db.rawQuery("""
+    SELECT SUM(amount) as total
+    FROM transactions
+    WHERE type = 'income'
+    AND strftime('%Y', date) = ?
+    AND strftime('%m', date) = ?
+  """, [
+      now.year.toString(),
+      now.month.toString().padLeft(2, '0'),
+    ]);
 
     return (result.first["total"] as num?)?.toDouble() ?? 0.0;
   }
   static Future<double> getExpenses() async {
     final db = await database;
 
-    final result = await db.rawQuery(
-      "SELECT SUM(amount) as total FROM transactions WHERE type='expense'",
-    );
+    final now = DateTime.now();
+
+    final result = await db.rawQuery("""
+    SELECT SUM(amount) as total
+    FROM transactions
+    WHERE type = 'expense'
+    AND strftime('%Y', date) = ?
+    AND strftime('%m', date) = ?
+  """, [
+      now.year.toString(),
+      now.month.toString().padLeft(2, '0'),
+    ]);
 
     return (result.first["total"] as num?)?.toDouble() ?? 0.0;
   }
@@ -161,11 +246,31 @@ class DatabaseHelper {
   static Future<void> insertDefaultCategories() async {
     final db = await database;
 
-    List defaults = [
-      {"name": "Salary", "type": "income"},
-      {"name": "Freelance", "type": "income"},
-      {"name": "Food", "type": "expense"},
-      {"name": "Transport", "type": "expense"},
+    List<Map<String, dynamic>> defaults = [
+      {
+        "name": "Salary",
+        "type": "income",
+        "color": 0xFF4CAF50,
+        "icon": Icons.attach_money.codePoint,
+      },
+      {
+        "name": "Freelance",
+        "type": "income",
+        "color": 0xFF2196F3,
+        "icon": Icons.work.codePoint,
+      },
+      {
+        "name": "Food",
+        "type": "expense",
+        "color": 0xFFFF5722,
+        "icon": Icons.fastfood.codePoint,
+      },
+      {
+        "name": "Transport",
+        "type": "expense",
+        "color": 0xFF9C27B0,
+        "icon": Icons.directions_car.codePoint,
+      },
     ];
 
     for (var c in defaults) {

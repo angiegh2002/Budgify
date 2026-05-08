@@ -51,6 +51,8 @@ Widget defaultMaterialButton({
   double height = 50,
   double minWidth=double.infinity,
   required String label,
+  double? fontSize=18,
+  FontWeight? fontWeight=FontWeight.bold,
 
 }) =>
 MaterialButton(
@@ -68,8 +70,8 @@ borderRadius: BorderRadius.circular(20),
 child:  Text(
 label,
 style: TextStyle(
-fontSize:28,
-fontWeight: FontWeight.bold
+fontSize:fontSize,
+fontWeight: fontWeight
 ),
 ),
 );

@@ -19,7 +19,12 @@ final _formKey = GlobalKey<FormState>();
 bool isPasswordHidden = true;
 final TextEditingController emailController=TextEditingController();
 final TextEditingController passwordController = TextEditingController();
-
+@override
+void dispose() {
+  emailController.dispose();
+  passwordController.dispose();
+  super.dispose();
+}
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -43,8 +48,15 @@ Widget build(BuildContext context) {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Form(
                     key: _formKey,
@@ -58,7 +70,7 @@ Widget build(BuildContext context) {
                         defaultTextFormField(
                             controller: emailController,
                             textInputType: TextInputType.emailAddress,
-                            labelText: "email / username",
+                            labelText: "Email / Username",
                             prefixIcon: Icons.email_outlined,
                             validator: (value){
                               if (value==null || value.isEmpty){
@@ -70,7 +82,7 @@ Widget build(BuildContext context) {
                         defaultTextFormField(
                           controller: passwordController,
                           textInputType: TextInputType.visiblePassword,
-                          labelText: "password",
+                          labelText: "Password",
                           prefixIcon: Icons.lock_outline,
                           isPasswordHidden: isPasswordHidden,
                           suffixIcon: isPasswordHidden?  Icons.visibility_off_outlined : Icons.visibility_outlined,
