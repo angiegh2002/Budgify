@@ -270,7 +270,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
                   const SizedBox(height: 30),
                   defaultMaterialButton(onPressed: saveTransaction, label: widget.isEdit ?
+<<<<<<< HEAD
                   "Update Transaction":"Save Transaction",),
+=======
+                  "Update Transaction":"Save Transaction",fontSize: 18),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
 
                 ],
               ),

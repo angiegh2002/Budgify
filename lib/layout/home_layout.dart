@@ -1,6 +1,9 @@
 import 'package:budgify/screen/home_screen.dart';
 import 'package:budgify/screen/profile_screen.dart';
+<<<<<<< HEAD
 import 'package:budgify/screen/setting_screen.dart';
+=======
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
 import 'package:budgify/screen/transactions_screen.dart';
 import 'package:budgify/server/cache_helper.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +22,11 @@ class _HomeLayoutState extends State<HomeLayout> {
   int currentIndex = 0;
   String? get name => CacheHelper.prefs.getString("name");
 
+<<<<<<< HEAD
   bool? get darkMode => CacheHelper.prefs.getBool("enableDarkMode");
 
+=======
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
   List<Widget> screen = [
     HomeScreen(),
     TransactionsScreen()

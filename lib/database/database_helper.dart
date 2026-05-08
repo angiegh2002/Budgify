@@ -128,6 +128,9 @@ class DatabaseHelper {
   }
 
 
+
+
+
   static Future<int> insertTransaction({
     required double amount,
     required String currency,
@@ -196,6 +199,12 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
   static Future<double> getIncome() async {
     final db = await database;
 

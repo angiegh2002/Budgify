@@ -2,7 +2,10 @@ import 'package:budgify/component.dart';
 import 'package:flutter/material.dart';
 import '../const.dart';
 import '../database/database_helper.dart';
+<<<<<<< HEAD
 import '../server/cache_helper.dart';
+=======
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
 import 'add_transaction.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
@@ -13,8 +16,21 @@ class TransactionDetailsScreen extends StatelessWidget {
     required this.transaction,
   });
 
+<<<<<<< HEAD
   void _showDeleteDialog(BuildContext context) {
     bool isDarkmode = CacheHelper.prefs.getBool("enableDarkMode") ?? false;
+=======
+  Color getColor(String type) {
+    return type == "income" ? green : orange;
+  }
+
+  IconData getIcon(String type) {
+    return type == "income"
+        ? Icons.arrow_upward
+        : Icons.arrow_downward;
+  }
+  void _showDeleteDialog(BuildContext context) {
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -23,15 +39,26 @@ class TransactionDetailsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
+<<<<<<< HEAD
             child: Text("Cancel",style: TextStyle(color: isDarkmode ? gray3 : gray4),),
+=======
+            child: const Text("Cancel"),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
           ),
           TextButton(
             onPressed: () async {
               await DatabaseHelper.deleteTransaction(transaction["id"]);
+<<<<<<< HEAD
               Navigator.pop(ctx);
               Navigator.pop(context, true);
             },
             child: const Text("Delete", style: TextStyle(color:orange)),
+=======
+              Navigator.pop(ctx); // close dialog
+              Navigator.pop(context, true); // back + refresh
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
           ),
         ],
       ),
@@ -42,6 +69,10 @@ class TransactionDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Transaction Details"),
+<<<<<<< HEAD
+=======
+        backgroundColor: green,
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline_outlined, color:orange,
@@ -58,6 +89,7 @@ class TransactionDetailsScreen extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
+<<<<<<< HEAD
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -67,14 +99,24 @@ class TransactionDetailsScreen extends StatelessWidget {
                 offset: const Offset(0, 2),
               ),
             ],
+=======
+            color: white,
+            borderRadius: BorderRadius.circular(20),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+<<<<<<< HEAD
+=======
+
+              // ICON
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
               Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
+<<<<<<< HEAD
                   color: Color(transaction["category_color"]).withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
@@ -85,11 +127,25 @@ class TransactionDetailsScreen extends StatelessWidget {
                   ),
                   size: 40,
                   color: Color(transaction["category_color"]),
+=======
+                  color: getColor(transaction["type"])
+                      .withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  getIcon(transaction["type"]),
+                  size: 40,
+                  color: getColor(transaction["type"]),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
                 ),
               ),
 
               const SizedBox(height: 20),
 
+<<<<<<< HEAD
+=======
+              // AMOUNT
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
               Text(
                 "${transaction["amount"]} ${transaction["currency"]}",
                 style: const TextStyle(
@@ -100,6 +156,10 @@ class TransactionDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 10),
 
+<<<<<<< HEAD
+=======
+              // CATEGORY
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
               Text(
                 "Category: ${transaction["category_name"]}",
                 style: const TextStyle(fontSize: 16),
@@ -107,6 +167,10 @@ class TransactionDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 10),
 
+<<<<<<< HEAD
+=======
+              // DATE
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
               Text(
                 "Date: ${transaction["date"].toString().substring(0, 16)}",
                 style: const TextStyle(color: Colors.grey),
@@ -114,6 +178,10 @@ class TransactionDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+<<<<<<< HEAD
+=======
+              // NOTES
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -149,7 +217,11 @@ class TransactionDetailsScreen extends StatelessWidget {
                 if (result == true) {
                   Navigator.pop(context, true);
                 }
+<<<<<<< HEAD
               }, label: "Edit Transaction",),
+=======
+              }, label: "Edit Transaction",fontSize: 18),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
 
             ],
           ),

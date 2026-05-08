@@ -59,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
+<<<<<<< HEAD
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -68,6 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           offset: const Offset(0, 2),
                         ),
                       ],
+=======
+                      color: white,
+                      borderRadius: BorderRadius.circular(20),
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
                     ),
                     child: Form(
                       key: _formKey,
@@ -122,6 +127,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 await CacheHelper.prefs.setString("name", nameController.text);
                                 await CacheHelper.prefs.setString("userName", userNameController.text);
                                 await CacheHelper.prefs.setString("email", emailController.text);
+<<<<<<< HEAD
+=======
+                                await CacheHelper.prefs.setString("password", passwordController.text);
+
+>>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
                                 Fluttertoast.showToast(
                                   msg: "Profile updated successfully",
                                   backgroundColor: green,
