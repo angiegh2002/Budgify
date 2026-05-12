@@ -9,7 +9,7 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin plugin =
   FlutterLocalNotificationsPlugin();
   static Future<void> init() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('logo');
     const settings = InitializationSettings(android: android);
 
     await plugin.initialize(
@@ -53,7 +53,7 @@ class NotificationService {
             channelDescription: 'Daily reminder notifications',
             importance: Importance.max,
             priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
+            icon: 'logo',
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -86,6 +86,7 @@ class NotificationService {
             channelDescription: 'Budget alert notifications',
             importance: Importance.max,
             priority: Priority.high,
+            icon: 'logo',
           ),
         ),
       );
