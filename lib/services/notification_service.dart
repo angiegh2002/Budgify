@@ -3,7 +3,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
 
 import '../const.dart';
-import 'cache_helper.dart';
+import '../services/cache_helper.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin plugin =
@@ -152,6 +152,6 @@ class NotificationService {
 
     );
 
-    print("✅ Test notification scheduled");
+    print("Test notification scheduled");
   }
 }

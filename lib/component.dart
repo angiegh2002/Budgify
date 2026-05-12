@@ -51,11 +51,7 @@ Widget defaultMaterialButton({
   double height = 50,
   double minWidth=double.infinity,
   required String label,
-<<<<<<< HEAD
   double? fontSize=18,
-=======
-  double? fontSize=28,
->>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
   FontWeight? fontWeight=FontWeight.bold,
 
 }) =>

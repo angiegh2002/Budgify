@@ -1,16 +1,14 @@
 import 'package:budgify/screen/home_screen.dart';
 import 'package:budgify/screen/profile_screen.dart';
-<<<<<<< HEAD
-import 'package:budgify/screen/setting_screen.dart';
-=======
->>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
+
 import 'package:budgify/screen/transactions_screen.dart';
-import 'package:budgify/server/cache_helper.dart';
+import 'package:budgify/services/cache_helper.dart';
 import 'package:flutter/material.dart';
 import '../const.dart';
 import '../screen/add_transaction.dart';
 import '../screen/login_screen.dart';
 import '../screen/notifications_screen.dart';
+import '../screen/setting_screen.dart';
 
 class HomeLayout extends StatefulWidget {
   @override
@@ -21,17 +19,12 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   int currentIndex = 0;
   String? get name => CacheHelper.prefs.getString("name");
-
-<<<<<<< HEAD
   bool? get darkMode => CacheHelper.prefs.getBool("enableDarkMode");
 
-=======
->>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
-  List<Widget> screen = [
-    HomeScreen(),
-    TransactionsScreen()
-  ];
+  final GlobalKey<TransactionsScreenState> transactionsKey =
+  GlobalKey<TransactionsScreenState>();
 
+  late List<Widget> screen;
   PageController pageController = PageController();
 
   @override
@@ -39,7 +32,15 @@ class _HomeLayoutState extends State<HomeLayout> {
     pageController.dispose();
     super.dispose();
   }
+  @override
+  void initState() {
+    super.initState();
 
+    screen = [
+      HomeScreen(),
+      TransactionsScreen(key: transactionsKey),
+    ];
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,7 +172,7 @@ class _HomeLayoutState extends State<HomeLayout> {
           );
 
           if (result == true) {
-            setState(() {});
+            transactionsKey.currentState?.loadTransactions();
           }
         },
         backgroundColor: gray2,

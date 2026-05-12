@@ -7,6 +7,8 @@ class DatabaseHelper {
 
   static const String dbName = "budgify.db";
 
+  static const String baseCurrency = "USD";
+
   static Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await initDB();
@@ -18,9 +20,8 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
-
         await db.execute('''
         CREATE TABLE categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +35,8 @@ class DatabaseHelper {
         await db.execute('''
         CREATE TABLE transactions (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          amount REAL NOT NULL,
+          amount REAL NOT NULL,            
+          base_amount REAL NOT NULL,       
           currency TEXT NOT NULL,
           type TEXT NOT NULL,
           category_id INTEGER,
@@ -47,15 +49,37 @@ class DatabaseHelper {
 
       onUpgrade: (db, oldVersion, newVersion) async {
 
-        if (oldVersion < 2) {
-          await db.execute("ALTER TABLE categories ADD COLUMN color INTEGER DEFAULT 0xFF000000");
-          await db.execute("ALTER TABLE categories ADD COLUMN icon INTEGER DEFAULT 0");
-        }
+        await db.transaction((txn) async {
+          if (oldVersion < 2) {
+            await _safeAddColumn(txn as Database, 'categories', 'color', 'INTEGER DEFAULT 0xFF000000');
+            await _safeAddColumn(txn as Database, 'categories', 'icon', 'INTEGER DEFAULT 0');
+          }
 
+          if (oldVersion < 3) {
+            await _safeAddColumn(txn as Database, 'transactions', 'base_amount', 'REAL DEFAULT 0');
+          }
+        });
       },
+
     );
   }
+  static Future<void> _safeAddColumn(
+      Database db,
+      String tableName,
+      String columnName,
+      String columnDefinition,
+      ) async {
+    try {
+      final info = await db.rawQuery('PRAGMA table_info($tableName)');
+      final exists = info.any((col) => col['name'].toString() == columnName);
 
+      if (!exists) {
+        await db.execute('ALTER TABLE $tableName ADD COLUMN $columnName $columnDefinition');
+      }
+    } catch (e) {
+      debugPrint(' Migration warning for $tableName.$columnName: $e');
+    }
+  }
   static Future<int> insertCategory(
       String name,
       String type,
@@ -71,6 +95,7 @@ class DatabaseHelper {
       "icon": icon,
     });
   }
+
   static Future<List<Map<String, dynamic>>> getCategories() async {
     final db = await database;
     return await db.query("categories");
@@ -127,12 +152,9 @@ class DatabaseHelper {
     );
   }
 
-
-
-
-
   static Future<int> insertTransaction({
     required double amount,
+    required double baseAmount,
     required String currency,
     required String type,
     required int categoryId,
@@ -142,13 +164,15 @@ class DatabaseHelper {
 
     return await db.insert("transactions", {
       "amount": amount,
+      "base_amount": baseAmount,
       "currency": currency,
       "type": type,
       "category_id": categoryId,
       "notes": notes,
-      "date": DateTime.now().toString(),
+      "date": DateTime.now().toIso8601String(),
     });
   }
+
   static Future<List<Map<String, dynamic>>> getTransactions() async {
     final db = await database;
 
@@ -164,6 +188,7 @@ class DatabaseHelper {
     ORDER BY transactions.id DESC
   ''');
   }
+
   static Future<int> deleteTransaction(int id) async {
     final db = await database;
 
@@ -174,11 +199,10 @@ class DatabaseHelper {
     );
   }
 
-
-
   static Future<void> updateTransaction({
     required int id,
     required double amount,
+    required double baseAmount,
     required String type,
     required int categoryId,
     required String notes,
@@ -190,6 +214,7 @@ class DatabaseHelper {
       "transactions",
       {
         "amount": amount,
+        "base_amount": baseAmount,
         "type": type,
         "category_id": categoryId,
         "notes": notes,
@@ -199,19 +224,14 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
-<<<<<<< HEAD
-=======
 
-
-
->>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
   static Future<double> getIncome() async {
     final db = await database;
 
     final now = DateTime.now();
 
     final result = await db.rawQuery("""
-    SELECT SUM(amount) as total
+    SELECT SUM(base_amount) as total
     FROM transactions
     WHERE type = 'income'
     AND strftime('%Y', date) = ?
@@ -223,13 +243,14 @@ class DatabaseHelper {
 
     return (result.first["total"] as num?)?.toDouble() ?? 0.0;
   }
+
   static Future<double> getExpenses() async {
     final db = await database;
 
     final now = DateTime.now();
 
     final result = await db.rawQuery("""
-    SELECT SUM(amount) as total
+    SELECT SUM(base_amount) as total
     FROM transactions
     WHERE type = 'expense'
     AND strftime('%Y', date) = ?
@@ -242,15 +263,12 @@ class DatabaseHelper {
     return (result.first["total"] as num?)?.toDouble() ?? 0.0;
   }
 
-
   static Future<double> getBalance() async {
     double income = await getIncome();
     double expenses = await getExpenses();
 
     return income - expenses;
   }
-
-
 
   static Future<void> insertDefaultCategories() async {
     final db = await database;

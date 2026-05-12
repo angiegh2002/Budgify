@@ -1,13 +1,15 @@
 import 'package:budgify/component.dart';
+import 'package:budgify/provider/currency_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart' show showIconPicker;
 import '../const.dart';
 import '../main.dart';
-import '../server/cache_helper.dart';
+import '../services/cache_helper.dart';
 import '../database/database_helper.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+import 'package:provider/provider.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -36,6 +38,7 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -54,59 +57,89 @@ class _SettingScreenState extends State<SettingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildWhiteContainer(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Currency",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: selectedCurrency,
-                      decoration:
-                      const InputDecoration(
-                        labelText:
-                        "Category",
-                        border:
-                        OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: "USD",
-                          child: Text(
-                            "united states dollar (usd)",
-                            style: TextStyle(color: Colors.black54),
+                child:Consumer<CurrencyProvider>(
+                  builder: (context, currencyProvider, child) {
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+                      if (currencyProvider.message != null) {
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(currencyProvider.message!),
+                              backgroundColor: currencyProvider.isMessageSuccess ? green : orange,
+                              // behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ));
+
+                        currencyProvider.message = null;
+                      }
+                    });
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        const Text(
+                          "Currency",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        DropdownMenuItem(
-                          value: "EUR",
-                          child: Text(
-                            "euro (eur)",
-                            style: TextStyle(color: Colors.black54),
+
+                        const SizedBox(height: 12),
+
+                        currencyProvider.loading
+                            ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+
+                            : DropdownButtonFormField<String>(
+
+                          value:
+                          currencyProvider.selectedCurrency,
+
+                          isExpanded: true,
+
+                          decoration: const InputDecoration(
+                            labelText: "Select Currency",
+                            border: OutlineInputBorder(),
                           ),
-                        ),
-                        DropdownMenuItem(
-                          value: "SYP",
-                          child: Text(
-                            "syrian pound (syp)",
-                            style: TextStyle(color: Colors.black54),
+
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
                           ),
+
+                          items:
+                          currencyProvider.currencies.map(
+                                (currency) {
+
+                              return DropdownMenuItem(
+
+                                value: currency,
+
+                                child: Text(currency),
+                              );
+                            },
+                          ).toList(),
+
+                          onChanged: (value) async {
+
+                            if (value != null) {
+
+                              await currencyProvider
+                                  .changeCurrency(
+                                value,
+                                context,
+                              );
+                            }
+                          },
                         ),
                       ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => selectedCurrency = value);
-                          CacheHelper.prefs.setString("currency", value);
-                        }
-                      },
-                      icon: const Icon(Icons.keyboard_arrow_down,),
-                    ),
-                  ],
-                ),
+                    );
+                  },
+                )
               ),
               const SizedBox(height: 20),
 
@@ -163,33 +196,9 @@ class _SettingScreenState extends State<SettingScreen> {
                   ],
                 ),
               ),
-        
+
               const SizedBox(height: 20),
 
-              //
-              // SizedBox(
-              //   width: double.infinity,
-              //   child: ElevatedButton.icon(
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: green,
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(20),
-              //       ),
-              //       padding: const EdgeInsets.symmetric(vertical: 14),
-              //       elevation: 0,
-              //     ),
-              //     onPressed: () => openCategorySheet(),
-              //     icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-              //     label: const Text(
-              //       "add new categories",
-              //       style: TextStyle(
-              //         color: Colors.white,
-              //         fontSize: 16,
-              //         fontWeight: FontWeight.w500,
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -204,7 +213,7 @@ class _SettingScreenState extends State<SettingScreen> {
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -230,7 +239,7 @@ class _SettingScreenState extends State<SettingScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: enableDarkMode ? Colors.white.withOpacity(0.2) :Colors.black.withOpacity(0.2) ,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -258,7 +267,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: white,
+                  color: Theme.of(context).cardColor,
                   border: Border(
                     top: BorderSide(
                       color: gray3,
@@ -366,9 +375,9 @@ class _SettingScreenState extends State<SettingScreen> {
                 right: 16,
                 top: 24,
               ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
                 ),
@@ -415,30 +424,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       OutlineInputBorder(),
                     ),
                   ),
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  //   decoration: BoxDecoration(
-                  //     color: gray3,
-                  //     borderRadius: BorderRadius.circular(20),
-                  //   ),
-                  //   child: DropdownButtonHideUnderline(
-                  //     child: DropdownButton<String>(
-                  //       value: type,
-                  //       isExpanded: true,
-                  //       items: const [
-                  //         DropdownMenuItem(
-                  //             value: "income", child: Text("Income")),
-                  //         DropdownMenuItem(
-                  //             value: "expense", child: Text("Expense")),
-                  //       ],
-                  //       onChanged: (value) {
-                  //         setModal(() {
-                  //           type = value!;
-                  //         });
-                  //       },
-                  //     ),
-                  //   ),
-                  // ),
+
                   const SizedBox(height: 20),
 
                   Row(

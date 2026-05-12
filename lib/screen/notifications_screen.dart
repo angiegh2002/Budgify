@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../const.dart';
-import '../server/cache_helper.dart';
-import '../server/notification_server.dart';
+import '../services/cache_helper.dart';
+import '../services/notification_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

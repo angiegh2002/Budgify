@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../component.dart';
 import '../const.dart';
 import '../layout/home_layout.dart';
-import '../server/cache_helper.dart';
+import '../services/cache_helper.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

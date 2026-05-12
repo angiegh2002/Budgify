@@ -1,16 +1,14 @@
+import 'package:budgify/provider/currency_provider.dart';
 import 'package:budgify/screen/login_screen.dart';
-import 'package:budgify/server/cache_helper.dart';
-import 'package:budgify/server/notification_server.dart';
+import 'package:budgify/services/cache_helper.dart';
+import 'package:budgify/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// ✅ واجهة البرمجة (API) باسم مستعار
+import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-// ✅ بيانات المناطق الزمنية (بدون اسم مستعار!)
 import 'package:timezone/data/latest.dart';
 
-// ✅ مكتبة اكتشاف منطقة الجهاز
 import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'app_theme_data.dart';
@@ -30,12 +28,12 @@ void main() async {
   initializeTimeZones();
   try {
     final deviceTimezone = await FlutterTimezone.getLocalTimezone();
-    print("🌍 Detected Timezone: $deviceTimezone");
+    print("Detected Timezone: $deviceTimezone");
     final location = tz.getLocation(deviceTimezone);
     tz.setLocalLocation(location);
 
   } catch (e) {
-    print("⚠️ Fallback to UTC due to error: $e");
+    print("Fallback to UTC due to error: $e");
     tz.setLocalLocation(tz.getLocation('UTC'));
   }
 
@@ -47,7 +45,11 @@ void main() async {
   themeNotifier.value = isDarkmode ? darkTheme : appTheme;
 
 
-  runApp(BudgifyApp(isLogin: isLogin,isDarkmode: isDarkmode,));
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CurrencyProvider()),
+      ],
+      child:BudgifyApp(isLogin: isLogin,isDarkmode: isDarkmode,)));
 }
 
 class BudgifyApp extends StatelessWidget {

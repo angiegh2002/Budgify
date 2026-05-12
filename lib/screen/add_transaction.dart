@@ -1,8 +1,10 @@
 import 'package:budgify/component.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../const.dart';
 import '../database/database_helper.dart';
-import '../server/cache_helper.dart';
+import '../provider/currency_provider.dart';
+import '../services/cache_helper.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final Map<String, dynamic>? transaction;
@@ -20,12 +22,8 @@ class AddTransactionScreen extends StatefulWidget {
 }
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
-
-  TextEditingController amountController =
-  TextEditingController();
-
-  TextEditingController notesController =
-  TextEditingController();
+  TextEditingController amountController = TextEditingController();
+  TextEditingController notesController = TextEditingController();
 
   String type = "expense";
 
@@ -33,13 +31,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   int? selectedCategoryId;
 
-  String currency = "";
+  late String currency;
 
   @override
   void initState() {
     super.initState();
-    currency =
-        CacheHelper.prefs.getString("currency") ?? "USD";
+
+    currency = CacheHelper.prefs.getString("currency") ?? "USD";
+
     if (widget.isEdit && widget.transaction != null) {
       amountController.text =
           widget.transaction!["amount"].toString();
@@ -47,37 +46,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           widget.transaction!["notes"] ?? "";
       type = widget.transaction!["type"];
       selectedCategoryId = widget.transaction!["category_id"];
+      currency = widget.transaction!["currency"];
     }
-
 
     loadCategories();
   }
 
-  // Future<void> loadCategories() async {
-  //   categories =
-  //   await DatabaseHelper.getCategoriesByType(type);
-  //
-  //   if (categories.isNotEmpty) {
-  //     selectedCategoryId = categories.first["id"];
-  //   } else {
-  //     selectedCategoryId = null;
-  //   }
-  //
-  //   setState(() {});
-  // }
   Future<void> loadCategories() async {
     categories = await DatabaseHelper.getCategoriesByType(type);
 
-    if (widget.isEdit &&
-        categories.any((e) => e["id"] == selectedCategoryId)) {
-
-    } else {
+    if (!(widget.isEdit &&
+        categories.any((e) => e["id"] == selectedCategoryId))) {
       selectedCategoryId =
       categories.isNotEmpty ? categories.first["id"] : null;
     }
 
     setState(() {});
   }
+
   @override
   void dispose() {
     amountController.dispose();
@@ -86,8 +72,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> saveTransaction() async {
-    double amount =
-        double.tryParse(amountController.text) ?? 0;
+    double amount = double.tryParse(amountController.text) ?? 0;
+
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -97,6 +83,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       );
       return;
     }
+
     if (selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -106,11 +93,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       );
       return;
     }
-    if (widget.isEdit) {
 
+    final currencyProvider = context.read<CurrencyProvider>();
+
+    final baseAmount = currencyProvider.convert(
+      amount,
+      currency,
+      "USD",
+    );
+
+    if (widget.isEdit) {
       await DatabaseHelper.updateTransaction(
         id: widget.transaction!["id"],
         amount: amount,
+        baseAmount: baseAmount,
         type: type,
         categoryId: selectedCategoryId!,
         notes: notesController.text,
@@ -119,12 +115,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     } else {
       await DatabaseHelper.insertTransaction(
         amount: amount,
+        baseAmount: baseAmount,
+        currency: currency,
         type: type,
         categoryId: selectedCategoryId!,
         notes: notesController.text,
-        currency: currency,
       );
     }
+
     Navigator.pop(context, true);
   }
 
@@ -132,7 +130,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEdit ? "Edit Transaction" : "Add Transaction",),
+        title: Text(widget.isEdit ? "Edit Transaction" : "Add Transaction"),
         backgroundColor: green,
       ),
       body: SafeArea(
@@ -143,8 +141,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius:
-                BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -155,7 +152,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               child: Column(
                 children: [
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Transaction Type",
@@ -169,113 +166,87 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   const SizedBox(height: 10),
 
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ChoiceChip(
-                        label:
-                        const Text("Income"),
-                        selected:
-                        type == "income",
+                        label: const Text("Income"),
+                        selected: type == "income",
                         selectedColor: green,
-                        onSelected:
-                            (val) async {
+                        onSelected: (val) async {
                           setState(() {
                             type = "income";
                           });
-
                           await loadCategories();
                         },
                       ),
                       ChoiceChip(
-                        label:
-                        const Text("Expense"),
-                        selected:
-                        type == "expense",
+                        label: const Text("Expense"),
+                        selected: type == "expense",
                         selectedColor: orange,
-                        onSelected:
-                            (val) async {
+                        onSelected: (val) async {
                           setState(() {
                             type = "expense";
                           });
-
                           await loadCategories();
                         },
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 20),
 
                   defaultTextFormField(
-                      controller: amountController,
-                      textInputType: TextInputType.number,
-                      labelText: "Amount ($currency)",
-                      prefixIcon: Icons.attach_money,
-                      validator: (valeu){return null;}),
+                    controller: amountController,
+                    textInputType: TextInputType.number,
+                    labelText: "Amount ($currency)",
+                    prefixIcon: Icons.attach_money,
+                    validator: (v) => null,
+                  ),
+
                   const SizedBox(height: 20),
 
                   if (categories.isEmpty)
-                    const Text(
-                        "No categories available")
+                    const Text("No categories available")
                   else
                     DropdownButtonFormField<int>(
-                      icon: const Icon(Icons.keyboard_arrow_down,),
-                      value:
-                      selectedCategoryId,
+                      value: selectedCategoryId,
                       items: categories.map((e) {
-                          return DropdownMenuItem<int>(
-                            value: e["id"],
-                            child: Text(
-                              e["name"].toString(),
-                            ),
-                          );
-                        },
-                      ).toList(),
+                        return DropdownMenuItem<int>(
+                          value: e["id"],
+                          child: Text(e["name"].toString()),
+                        );
+                      }).toList(),
                       onChanged: (val) {
                         setState(() {
-                          selectedCategoryId =
-                              val;
+                          selectedCategoryId = val;
                         });
                       },
-                      decoration:
-                      const InputDecoration(
-                        labelText:
-                        "Category",
-                        border:
-                        OutlineInputBorder(),
+                      decoration: const InputDecoration(
+                        labelText: "Category",
+                        border: OutlineInputBorder(),
                       ),
                     ),
 
                   const SizedBox(height: 20),
 
                   TextField(
-                    controller:
-                    notesController,
+                    controller: notesController,
                     maxLines: 5,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (value) {
-                      FocusScope.of(context).unfocus();
-                    },
-
-                    decoration:
-                    const InputDecoration(
-                      labelText:
-                      "Notes...",
-                      alignLabelWithHint:
-                      true,
-                      border:
-                      OutlineInputBorder(),
+                    decoration: const InputDecoration(
+                      labelText: "Notes...",
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(),
                     ),
                   ),
 
                   const SizedBox(height: 30),
-                  defaultMaterialButton(onPressed: saveTransaction, label: widget.isEdit ?
-<<<<<<< HEAD
-                  "Update Transaction":"Save Transaction",),
-=======
-                  "Update Transaction":"Save Transaction",fontSize: 18),
->>>>>>> 8019d3427e4c74a8dbbfde77ea2158dfe5dd6f57
 
+                  defaultMaterialButton(
+                    onPressed: saveTransaction,
+                    label: widget.isEdit
+                        ? "Update Transaction"
+                        : "Save Transaction",
+                  ),
                 ],
               ),
             ),
@@ -285,4 +256,3 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 }
-
