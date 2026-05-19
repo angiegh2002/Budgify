@@ -39,11 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
       expenses = await DatabaseHelper.getExpenses();
       balance = await DatabaseHelper.getBalance();
 
-      monthlyBudget =
-          CacheHelper.prefs.getDouble("monthlyBudget") ?? 0;
+      monthlyBudget = CacheHelper.getMonthlyBudget();
 
       bool budgetAlertEnabled =
-          CacheHelper.prefs.getBool("budgetAlert") ?? false;
+      CacheHelper.getBudgetAlert();
 
       if (monthlyBudget > 0) {
         percentage = expenses / monthlyBudget;
@@ -322,10 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               BASE_CURRENCY,
                                             );
 
-                                            await CacheHelper
-                                                .prefs
-                                                .setDouble(
-                                              "monthlyBudget",
+                                            await CacheHelper.saveMonthlyBudget(
                                               budgetInBaseCurrency,
                                             );
 
