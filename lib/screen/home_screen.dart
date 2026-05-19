@@ -112,7 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment:
                 CrossAxisAlignment.start,
                 children: [
-                  /// Balance Card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -173,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// Income & Expenses
                   Row(
                     children: [
                       Expanded(
@@ -204,7 +202,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// Monthly Budget Card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
