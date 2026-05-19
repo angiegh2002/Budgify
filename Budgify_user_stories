@@ -1,3 +1,617 @@
+# Budgify User Stories
+
+## Registration & Login
+
+### User Story 1
+
+**Title:**
+*As a user, I want to register using a username, email, and password, so that I can create a new account.*
+
+**Acceptance Criteria:**
+
+1. The registration form includes the following required fields: Name, Username, Email, Password, and Confirm Password.
+2. The user can successfully create an account by entering valid data and clicking the “Register” button.
+3. Error messages are displayed for any missing or invalid input fields.
+4. A confirmation popup is displayed when the account is successfully created.
+
+**Priority:** High
+
+**Story Points:** 5
+
+**Notes:**
+
+* Password and Confirm Password must match.
+* Email format must be validated.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want to log in using my email or username and password, so that I can access my account.*
+
+**Acceptance Criteria:**
+
+1. The user can log in using either email or username with a password.
+2. If login credentials are invalid, the message “Email or password is incorrect.” is displayed.
+3. Upon successful login, the user is redirected to the home screen.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Session should persist until logout.
+
+---
+
+### User Story 3
+
+**Title:**
+*As a user, I want the app to remember my login state, so that I do not have to log in every time I reopen the app.*
+
+**Acceptance Criteria:**
+
+1. User authentication data is stored in local storage after login or registration.
+2. When reopening the app, the user is automatically redirected to the home screen if already authenticated.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Session data must be cleared on logout.
+
+---
+
+# Home Screen (Dashboard) & Transactions
+
+### User Story 1
+
+**Title:**
+*As a user, I want to see a welcome message, so that I feel welcomed when using the app.*
+
+**Acceptance Criteria:**
+
+1. The message “Hello, [Username]” is displayed at the top of the home screen.
+2. The displayed username updates automatically if changed in the profile settings.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Username should be fetched dynamically from stored user data.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want to see a summary of my financial status on the dashboard, so that I can quickly review my balance, expenses, income, and budget.*
+
+**Acceptance Criteria:**
+
+1. Separate cards display Available Balance, Expenses, Income, and Monthly Budget.
+2. Financial values are clearly visible and formatted correctly.
+3. A progress bar displays the percentage of budget usage.
+4. All values update automatically whenever a transaction is added, edited, or deleted.
+
+**Priority:** High
+
+**Story Points:** 5
+
+**Notes:**
+
+* Calculations must remain accurate after every transaction update.
+
+---
+
+### User Story 3
+
+**Title:**
+*As a user, I want to update my budget, so that I can manage it according to my financial situation.*
+
+**Acceptance Criteria:**
+
+1. An edit button is displayed below the budget card.
+2. Clicking the button opens a popup for entering a new budget value.
+3. The entered value must be numeric and greater than zero.
+4. Clicking “Save” updates the budget value, progress bar, and percentage.
+5. The updated budget is stored in local storage.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Invalid inputs should display validation messages.
+
+---
+
+### User Story 4
+
+**Title:**
+*As a user, I want intuitive navigation icons, so that I can easily navigate through the app.*
+
+**Acceptance Criteria:**
+
+1. A settings icon is displayed in the top-left corner.
+2. A bottom navigation bar allows switching between the home screen and transaction list.
+3. A visible button is provided for adding a new transaction.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Navigation should remain accessible on all screens.
+
+---
+
+### User Story 5
+
+**Title:**
+*As a user, I want to view all my financial transactions in an organized list, so that I can review them easily.*
+
+**Acceptance Criteria:**
+
+1. Transactions are displayed from newest to oldest.
+2. Each transaction displays Category, Date, and Amount.
+3. Expenses are highlighted in red, while income is highlighted in green.
+4. Selecting a transaction opens the transaction details screen.
+
+**Priority:** High
+
+**Story Points:** 5
+
+**Notes:**
+
+* Long transaction lists should remain scrollable and responsive.
+
+---
+
+### User Story 6
+
+**Title:**
+*As a user, I want to filter transactions by day, week, or month, so that I can analyze my spending patterns.*
+
+**Acceptance Criteria:**
+
+1. A filter bar includes Day, Week, and Month options.
+2. The transaction list updates immediately after selecting a filter.
+
+**Priority:** Medium
+
+**Story Points:** 3
+
+**Notes:**
+
+* Filtering should not affect stored transaction data.
+
+---
+
+# Transaction Details & Editing
+
+### User Story 1
+
+**Title:**
+*As a user, I want to view transaction details, so that I can review or verify transaction information.*
+
+**Acceptance Criteria:**
+
+1. Transaction details display Type, Amount, Category, Date, and Notes.
+2. Information is displayed exactly as originally entered.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Notes field may be optional.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want to edit a transaction, so that I can correct mistakes or update transaction details.*
+
+**Acceptance Criteria:**
+
+1. An “Edit” button is displayed on the transaction details screen.
+2. Clicking “Edit” opens a form pre-filled with the existing transaction data.
+3. Updated transaction data is saved in local storage.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Updated values should refresh automatically across the app.
+
+---
+
+### User Story 3
+
+**Title:**
+*As a user, I want to delete a transaction, so that I can remove incorrect entries.*
+
+**Acceptance Criteria:**
+
+1. A “Delete” button is displayed on the transaction details screen.
+2. A confirmation message is shown before deletion.
+3. After confirmation, the transaction is removed and dashboard values are updated automatically.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Deleted transactions should not be recoverable unless backup support exists.
+
+---
+
+### User Story 4
+
+**Title:**
+*As a user, I want to navigate back to the previous screen easily, so that I can move through the app smoothly.*
+
+**Acceptance Criteria:**
+
+1. A back button is displayed in the top-left corner of the screen.
+
+**Priority:** Low
+
+**Story Points:** 1
+
+**Notes:**
+
+* Navigation behavior should follow platform standards.
+
+---
+
+# Add New Transaction
+
+### User Story 1
+
+**Title:**
+*As a user, I want to add a financial transaction quickly, so that I can instantly record expenses or income.*
+
+**Acceptance Criteria:**
+
+1. The form includes Type, Amount, Category, Date, and Optional Notes fields.
+2. The Amount field is required and does not allow negative values.
+3. After successful submission, a confirmation message is displayed.
+4. The dashboard and transaction list update automatically after saving.
+
+**Priority:** High
+
+**Story Points:** 5
+
+**Notes:**
+
+* Date should default to the current day if not selected.
+
+---
+
+# Profile Screen
+
+### User Story 1
+
+**Title:**
+*As a user, I want to view my personal information, so that I can review my account details.*
+
+**Acceptance Criteria:**
+
+1. The profile screen displays Name, Username, and Email.
+2. User data is retrieved from local storage.
+3. Information is displayed clearly in a form or card layout.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Sensitive information should not be editable directly without validation.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want to edit my personal information, so that I can keep my account details updated.*
+
+**Acceptance Criteria:**
+
+1. The user can edit Name, Username, and Email fields.
+2. Input validation is performed when clicking “Save Changes.”
+3. Valid updates are saved in local storage.
+4. Changes are reflected across the app immediately.
+
+**Priority:** Medium
+
+**Story Points:** 3
+
+**Notes:**
+
+* Email uniqueness validation may be required in future backend integration.
+
+---
+
+# Settings Menu
+
+### User Story 1
+
+**Title:**
+*As a user, I want easy access to the settings menu, so that I can manage my account and preferences.*
+
+**Acceptance Criteria:**
+
+1. A menu icon is displayed in the top-left corner of the app.
+
+**Priority:** Low
+
+**Story Points:** 1
+
+**Notes:**
+
+* The menu should be accessible from major screens.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want settings organized into categories, so that I can find options quickly.*
+
+**Acceptance Criteria:**
+
+1. Settings are grouped into categories such as Profile, Settings, Notifications, and Logout.
+
+**Priority:** Low
+
+**Story Points:** 2
+
+**Notes:**
+
+* Categories should remain visually distinct and easy to navigate.
+
+---
+
+# Logout
+
+### User Story 1
+
+**Title:**
+*As a user, I want to log out of the app, so that I can protect my account and personal data.*
+
+**Acceptance Criteria:**
+
+1. A visible “Logout” button is available in the settings menu.
+2. Session data is removed from local storage after logout.
+3. The user is redirected to the login screen.
+
+**Priority:** High
+
+**Story Points:** 2
+
+**Notes:**
+
+* Logging out should invalidate the active session immediately.
+
+---
+
+# Settings Screen
+
+### User Story 1
+
+**Title:**
+*As a user, I want to select a currency, so that the app matches my financial preferences.*
+
+**Acceptance Criteria:**
+
+1. Multiple currency options are available.
+2. Only one currency can be selected at a time.
+3. The selected currency is saved and applied throughout the app.
+
+**Priority:** Medium
+
+**Story Points:** 3
+
+**Notes:**
+
+* Currency preference should persist after restarting the app.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want to enable dark mode, so that I can use the app comfortably at night.*
+
+**Acceptance Criteria:**
+
+1. A toggle switch is available for dark mode.
+2. Activating the toggle switches the app to a dark theme.
+3. The preference is saved in local storage.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Theme changes should apply instantly across all screens.
+
+---
+
+### User Story 3
+
+**Title:**
+*As a user, I want to manage transaction categories, so that I can better organize my finances.*
+
+**Acceptance Criteria:**
+
+1. The user can add, edit, and delete categories.
+2. Adding a category requires a category name and type.
+3. Deleting a category requires confirmation before removal.
+
+**Priority:** Medium
+
+**Story Points:** 4
+
+**Notes:**
+
+* Categories linked to transactions should not break existing data.
+
+---
+
+# Notifications Screen
+
+### User Story 1
+
+**Title:**
+*As a user, I want to receive reminders and budget alerts, so that I can manage my finances more effectively.*
+
+**Acceptance Criteria:**
+
+1. Notifications can be enabled or disabled.
+2. Daily reminders can be enabled separately.
+3. Daily notifications are sent when reminders are enabled.
+4. Budget limit alerts can be enabled separately.
+5. Notifications are triggered when nearing or exceeding the budget limit.
+
+**Priority:** Medium
+
+**Story Points:** 5
+
+**Notes:**
+
+* Notifications should respect device permission settings.
+
+---
+
+# Persistent Data Integration
+
+### User Story 1
+
+**Title:**
+*As a user, I want the app to remember my login state, so that I do not need to log in repeatedly.*
+
+**Acceptance Criteria:**
+
+1. Login state is stored in local storage.
+2. The app opens directly to the home screen if the user is authenticated.
+3. Login state is cleared after logout.
+
+**Priority:** High
+
+**Story Points:** 3
+
+**Notes:**
+
+* Authentication state should remain secure.
+
+---
+
+### User Story 2
+
+**Title:**
+*As a user, I want my transactions to be saved persistently, so that I can access them later.*
+
+**Acceptance Criteria:**
+
+1. All transactions are stored in local storage.
+2. Transactions remain available after restarting the app.
+3. Transactions are retrieved automatically when the app launches.
+
+**Priority:** High
+
+**Story Points:** 4
+
+**Notes:**
+
+* Data retrieval failures should be handled gracefully.
+
+---
+
+### User Story 3
+
+**Title:**
+*As a user, I want my budget to be saved, so that I do not need to re-enter it every time.*
+
+**Acceptance Criteria:**
+
+1. Budget data is stored in local storage.
+2. The saved budget loads automatically on app startup.
+3. Budget values update whenever modified.
+
+**Priority:** Medium
+
+**Story Points:** 2
+
+**Notes:**
+
+* Budget calculations should remain synchronized with transactions.
+
+---
+
+### User Story 4
+
+**Title:**
+*As a user, I want my settings to be saved, so that the app remembers my preferences.*
+
+**Acceptance Criteria:**
+
+1. Settings including currency, dark mode, categories, and notifications are stored persistently.
+2. Settings are applied automatically when the app launches.
+3. Updated settings overwrite previous values immediately.
+
+**Priority:** Medium
+
+**Story Points:** 3
+
+**Notes:**
+
+* Corrupted settings data should reset safely to defaults.
+
+---
+
+# External API Integration
+
+### User Story 1
+
+**Title:**
+*As a user, I want financial values converted automatically when changing currency, so that I can view accurate values using real exchange rates.*
+
+**Acceptance Criteria:**
+
+1. Changing the currency sends a request to an exchange-rate API.
+2. Balance, Expenses, Income, and Transactions are converted automatically.
+3. Converted values update immediately across the app.
+4. If the API request fails, the message “Unable to update exchange rate, last saved value will be used.” is displayed.
+5. If there is no internet connection, the message “Currency conversion cannot be performed at the moment.” is displayed.
+
+**Priority:** Medium
+
+**Story Points:** 5
+
+**Notes:**
+
+* Cached exchange rates may be used as a fallback solution.
+
+
+
 # Budgify User Story
 
 ## **Registration & Login**
