@@ -34,9 +34,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    nameController.text = CacheHelper.prefs.getString("name") ?? "";
-    userNameController.text = CacheHelper.prefs.getString("userName") ?? "";
-    emailController.text = CacheHelper.prefs.getString("email") ?? "";
+    final userData = CacheHelper.getUserData();
+
+    nameController.text = userData?["name"] ?? "";
+    userNameController.text = userData?["userName"] ?? "";
+    emailController.text = userData?["email"] ?? "";
   }
   @override
   Widget build(BuildContext context) {
@@ -119,9 +121,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
 
-                                await CacheHelper.prefs.setString("name", nameController.text);
-                                await CacheHelper.prefs.setString("userName", userNameController.text);
-                                await CacheHelper.prefs.setString("email", emailController.text);
+                                final userData = CacheHelper.getUserData();
+
+                                await CacheHelper.saveUserData(
+                                  name: nameController.text,
+                                  userName: userNameController.text,
+                                  email: emailController.text,
+                                  password: userData?["password"] ?? "",
+                                );
                                 Fluttertoast.showToast(
                                   msg: "Profile updated successfully",
                                   backgroundColor: green,

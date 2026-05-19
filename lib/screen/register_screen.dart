@@ -164,10 +164,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           defaultMaterialButton(
                             onPressed: () async{
                               if (_formKey.currentState!.validate()) {
-                                await CacheHelper.prefs.setString("name", nameController.text);
-                                await CacheHelper.prefs.setString("userName", userNameController.text);
-                                await CacheHelper.prefs.setString("email", emailController.text);
-                                await CacheHelper.prefs.setString("password", passwordController.text);
+                                await CacheHelper.saveUserData(
+                                  name: nameController.text,
+                                  userName: userNameController.text,
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                );
                                 Fluttertoast.showToast(
                                     msg: "Account create successfully",
                                     toastLength: Toast.LENGTH_SHORT,

@@ -105,12 +105,12 @@ Widget build(BuildContext context) {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
 
-                              String? savedEmail = CacheHelper.prefs.getString("email");
-                              String? savedUserName=CacheHelper.prefs.getString("userName");
-                              String? savedPassword=CacheHelper.prefs.getString("password");
-                              if ((emailController.text== savedEmail ||
-                                  emailController.text ==savedUserName) &&
-                                  passwordController.text == savedPassword){
+                              final userData = CacheHelper.getUserData();
+
+                              if (userData != null &&
+                                  (emailController.text == userData["email"] ||
+                                      emailController.text == userData["userName"]) &&
+                                  passwordController.text == userData["password"]) {
                                 await CacheHelper.prefs.setBool("isLogin", true);
                                 Fluttertoast.showToast(
                                     msg: "Logged in successfully",
